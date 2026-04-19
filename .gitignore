@@ -1,0 +1,23 @@
+# Data files
+data/
+
+# Logs
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.env
+
+# Spark
+spark-warehouse/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

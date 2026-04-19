@@ -1,0 +1,78 @@
+version: "3.8"
+
+services:
+
+  # ==============================
+  # PostgreSQL
+  # ==============================
+  postgres:
+    image: postgres:15
+    container_name: ecommerce_postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: ecommerce_dw
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # ==============================
+  # Spark (Direct Image)
+  # ==============================
+  spark:
+    image: spark:3.5.1
+    container_name: ecommerce_spark
+    user: root
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+    command: bash -c "pip install -r /app/requirements.txt && tail -f /dev/null"
+
+  # ==============================
+  # Airflow Webserver
+  # ==============================
+  airflow-webserver:
+    image: apache/airflow:2.9.3
+    container_name: ecommerce_airflow_webserver
+    depends_on:
+      - postgres
+      - spark
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:admin123@postgres:5432/ecommerce_dw
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__WEBSERVER__SECRET_KEY: "my_super_secret_key"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock   
+    ports:
+      - "8080:8080"
+    command: webserver
+
+  # ==============================
+  # Airflow Scheduler
+  # ==============================
+  airflow-scheduler:
+    image: apache/airflow:2.9.3
+    container_name: ecommerce_airflow_scheduler
+    depends_on:
+      - postgres
+      - spark
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:admin123@postgres:5432/ecommerce_dw
+      AIRFLOW__WEBSERVER__SECRET_KEY: "my_super_secret_key"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock   
+    command: scheduler
+
+# ==============================
+# Volumes
+# ==============================
+volumes:
+  postgres_data:
