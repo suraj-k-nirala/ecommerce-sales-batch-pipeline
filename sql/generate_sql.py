@@ -10,9 +10,6 @@ unique_products = order_items_df["product_id"].unique()[:500]  # limit to 500
 
 sql = ""
 
-# ==============================
-# Sellers Table
-# ==============================
 sql += """-- Drop and recreate sellers table
 DROP TABLE IF EXISTS sellers CASCADE;
 CREATE TABLE sellers (
@@ -35,9 +32,6 @@ for _, row in sellers_df.iterrows():
 
 sql += ",\n".join(rows) + ";\n\n"
 
-# ==============================
-# Inventory Table
-# ==============================
 sql += """-- Drop and recreate inventory table
 DROP TABLE IF EXISTS inventory CASCADE;
 CREATE TABLE inventory (

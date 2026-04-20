@@ -24,9 +24,6 @@ def delete_folder_if_exists(path: str):
         shutil.rmtree(path)
 
 
-# ==============================
-# Customers (Olist)
-# ==============================
 customers = spark.read.csv(f"{RAW_CSV_PATH}/customers.csv", header=True, inferSchema=True)
 customers = customers.dropDuplicates(["customer_id"]).filter(col("customer_id").isNotNull())
 customers = customers.select(
@@ -40,9 +37,6 @@ customers.write.mode("overwrite").parquet(f"{STAGING_PATH}/customers")
 logger.info(f"Customers staged: {customers.count()} rows")
 
 
-# ==============================
-# Products (Olist)
-# ==============================
 products_raw = spark.read.csv(f"{RAW_CSV_PATH}/products.csv", header=True, inferSchema=True)
 order_items_raw = spark.read.csv(f"{RAW_CSV_PATH}/order_items.csv", header=True, inferSchema=True)
 
@@ -62,9 +56,6 @@ products.write.mode("overwrite").parquet(f"{STAGING_PATH}/products")
 logger.info(f"Products staged: {products.count()} rows")
 
 
-# ==============================
-# Orders (Olist)
-# ==============================
 orders = spark.read.csv(f"{RAW_CSV_PATH}/orders.csv", header=True, inferSchema=True)
 orders = orders.dropDuplicates(["order_id"]).filter(col("order_id").isNotNull())
 orders = orders.select(
@@ -78,9 +69,6 @@ orders.write.mode("overwrite").parquet(f"{STAGING_PATH}/orders")
 logger.info(f"Orders staged: {orders.count()} rows")
 
 
-# ==============================
-# Order Items (Olist)
-# ==============================
 order_items = spark.read.csv(f"{RAW_CSV_PATH}/order_items.csv", header=True, inferSchema=True)
 order_items = order_items.dropDuplicates(["order_id", "order_item_id"]).filter(col("order_item_id").isNotNull())
 order_items = order_items.select(
@@ -96,9 +84,6 @@ order_items.write.mode("overwrite").parquet(f"{STAGING_PATH}/order_items")
 logger.info(f"Order items staged: {order_items.count()} rows")
 
 
-# ==============================
-# Sellers (DB extracted CSV)
-# ==============================
 sellers = spark.read.csv(f"{RAW_DB_PATH}/sellers.csv", header=True, inferSchema=True)
 sellers = sellers.dropDuplicates(["seller_id"]).filter(col("seller_id").isNotNull()).filter(col("seller_name").isNotNull())
 delete_folder_if_exists(f"{STAGING_PATH}/sellers")
@@ -106,9 +91,6 @@ sellers.write.mode("overwrite").parquet(f"{STAGING_PATH}/sellers")
 logger.info(f"Sellers staged: {sellers.count()} rows")
 
 
-# ==============================
-# Inventory (DB extracted CSV)
-# ==============================
 inventory = spark.read.csv(f"{RAW_DB_PATH}/inventory.csv", header=True, inferSchema=True)
 inventory = inventory.dropDuplicates(["product_id"]).filter(col("product_id").isNotNull()).filter(col("stock_quantity").isNotNull())
 inventory = inventory.withColumn("last_updated", to_date(col("last_updated"), "yyyy-MM-dd"))
@@ -117,9 +99,6 @@ inventory.write.mode("overwrite").parquet(f"{STAGING_PATH}/inventory")
 logger.info(f"Inventory staged: {inventory.count()} rows")
 
 
-# ==============================
-# Product Metadata (API)
-# ==============================
 product_metadata = spark.read.csv(f"{RAW_API_PATH}/product_metadata.csv", header=True, inferSchema=True, multiLine=True, escape='"')
 if "id" in product_metadata.columns:
     product_metadata = product_metadata.withColumnRenamed("id", "product_id")

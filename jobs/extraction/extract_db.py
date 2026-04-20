@@ -7,11 +7,11 @@ from datetime import datetime
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-DB_HOST = "ecommerce_postgres"
-DB_PORT = "5432"
-DB_NAME = "ecommerce_dw"
-DB_USER = "admin"
-DB_PASS = "admin123"
+DB_HOST = os.getenv("DB_HOST", "ecommerce_postgres")
+DB_PORT = os.getenv("DB_PORT", "5432")
+DB_NAME = os.getenv("POSTGRES_DB", "ecommerce_dw")
+DB_USER = os.getenv("POSTGRES_USER", "admin")
+DB_PASS = os.getenv("POSTGRES_PASSWORD", "admin123")
 
 engine = create_engine(
     f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"

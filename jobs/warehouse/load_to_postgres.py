@@ -1,3 +1,4 @@
+import os
 import logging
 from pyspark.sql import SparkSession
 
@@ -8,10 +9,14 @@ spark = SparkSession.builder.appName("LoadToPostgres").getOrCreate()
 
 PROCESSED_PATH = "/app/data/processed"
 
-jdbc_url = "jdbc:postgresql://ecommerce_postgres:5432/ecommerce_dw"
+DB_USER = os.getenv("POSTGRES_USER", "admin")
+DB_PASS = os.getenv("POSTGRES_PASSWORD", "admin123")
+DB_NAME = os.getenv("POSTGRES_DB", "ecommerce_dw")
+
+jdbc_url = f"jdbc:postgresql://ecommerce_postgres:5432/{DB_NAME}"
 connection_properties = {
-    "user": "admin",
-    "password": "admin123",
+    "user": DB_USER,
+    "password": DB_PASS,
     "driver": "org.postgresql.Driver"
 }
 
