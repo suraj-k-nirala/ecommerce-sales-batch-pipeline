@@ -2,9 +2,6 @@ version: "3.8"
 
 services:
 
-  # ==============================
-  # PostgreSQL
-  # ==============================
   postgres:
     image: postgres:15
     container_name: ecommerce_postgres
@@ -17,9 +14,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  # ==============================
-  # Spark (Direct Image)
-  # ==============================
   spark:
     image: spark:3.5.1
     container_name: ecommerce_spark
@@ -30,9 +24,6 @@ services:
       - postgres
     command: bash -c "pip install -r /app/requirements.txt && tail -f /dev/null"
 
-  # ==============================
-  # Airflow Webserver
-  # ==============================
   airflow-webserver:
     image: apache/airflow:2.9.3
     container_name: ecommerce_airflow_webserver
@@ -47,14 +38,11 @@ services:
     volumes:
       - ./dags:/opt/airflow/dags
       - .:/app
-      - /var/run/docker.sock:/var/run/docker.sock   
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8080:8080"
     command: webserver
 
-  # ==============================
-  # Airflow Scheduler
-  # ==============================
   airflow-scheduler:
     image: apache/airflow:2.9.3
     container_name: ecommerce_airflow_scheduler
@@ -68,11 +56,8 @@ services:
     volumes:
       - ./dags:/opt/airflow/dags
       - .:/app
-      - /var/run/docker.sock:/var/run/docker.sock   
+      - /var/run/docker.sock:/var/run/docker.sock
     command: scheduler
 
-# ==============================
-# Volumes
-# ==============================
 volumes:
   postgres_data:
