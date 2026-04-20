@@ -190,6 +190,7 @@ ecommerce-sales-batch-pipeline/
 ├── sql/
 │   ├── source_db_init.sql            # Creates and seeds source DB tables (Olist sellers + inventory)
 │   └── generate_sql.py               # Generates source_db_init.sql from Olist CSV files
+├── .env.example
 ├── docker-compose.yml
 ├── requirements.txt
 └── README.md
@@ -258,7 +259,13 @@ git clone <repo-url>
 cd ecommerce-sales-batch-pipeline
 ```
 
-**2. Place Olist CSV files in `data/raw/csv/`**
+**2. Create your `.env` file**
+```bash
+cp .env.example .env
+```
+Update the values in `.env` if needed.
+
+**3. Place Olist CSV files in `data/raw/csv/`**
 ```
 orders.csv         ← olist_orders_dataset.csv
 customers.csv      ← olist_customers_dataset.csv
@@ -266,22 +273,22 @@ products.csv       ← olist_products_dataset.csv
 order_items.csv    ← olist_order_items_dataset.csv
 ```
 
-**3. Generate source DB SQL from Olist sellers data**
+**4. Generate source DB SQL from Olist sellers data**
 ```bash
 python sql/generate_sql.py
 ```
 
-**4. Start all containers**
+**5. Start all containers**
 ```bash
 docker-compose up -d
 ```
 
-**5. Wait ~2 minutes for Spark to finish installing dependencies**
+**6. Wait ~2 minutes for Spark to finish installing dependencies**
 ```bash
 docker-compose logs spark
 ```
 
-**6. Initialize source database tables**
+**7. Initialize source database tables**
 
 Windows (PowerShell):
 ```powershell
@@ -293,12 +300,12 @@ Mac/Linux:
 cat sql/source_db_init.sql | docker exec -i ecommerce_postgres psql -U admin -d ecommerce_dw
 ```
 
-**7. Create Airflow admin user**
+**8. Create Airflow admin user**
 ```bash
 docker exec -it ecommerce_airflow_webserver airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com
 ```
 
-**8. Open Airflow UI and trigger the DAG**
+**9. Open Airflow UI and trigger the DAG**
 ```
 http://localhost:8080
 Username: admin
@@ -313,7 +320,6 @@ Go to `ecommerce_batch_pipeline` → click ▶ to trigger manually.
 
 - Replace file-based watermark with a proper metadata table in PostgreSQL — more reliable and queryable
 - Add Metabase or Superset container for visualizing the warehouse data directly
-- Move DB credentials to Airflow Connections instead of hardcoding in scripts
 - Add schema validation (check column types, not just nulls)
 - Use `append` mode instead of `overwrite` for true incremental loads into the warehouse
 - Add a Great Expectations integration for more robust data quality checks
